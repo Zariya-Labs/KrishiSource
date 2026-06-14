@@ -12,6 +12,7 @@ dependencies:
   flutter_riverpod: ^3.3.2
   # isar_community is the actively-maintained drop-in replacement for isar v3,
   # fully compatible with modern Flutter/Dart and flutter_riverpod v3.
+  http: ^1.6.0
   isar_community: ^3.3.1
   isar_community_flutter_libs: ^3.3.1
   path_provider: ^2.1.5
