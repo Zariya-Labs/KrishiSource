@@ -10,9 +10,11 @@ allprojects {
         targetCompatibility = "17"
     }
 
-    // Force all Kotlin compilation tasks across all subprojects/plugins to use JVM Target 17
+    // Modern compilerOptions DSL to force JVM Target 17 on all Kotlin tasks across all plugins
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions.jvmTarget = "17"
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 }
 
