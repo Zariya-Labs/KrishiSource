@@ -1,13 +1,8 @@
-Tomato___Bacterial_spot
-Tomato___Early_blight
-Tomato___Late_blight
-Tomato___Leaf_Mold
-Tomato___Septoria_leaf_spot
-Tomato___Spider_mites Two-spotted_spider_mite
-Tomato___Target_Spot
-Tomato___Tomato_Yellow_Leaf_Curl_Virus
-Tomato___Tomato_mosaic_virus
-Tomato___healthy
-Potato___Early_blight
-Potato___Late_blight
-Potato___healthy
+maize_healthy
+maize_leaf_blight_rust
+potato_healthy
+potato_late_blight
+rice_bacterial_blight_blast
+rice_healthy
+tomato_healthy
+tomato_late_blight
