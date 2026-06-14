@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar_community/isar.dart';
 import 'core/database/database_service.dart';
 import 'core/database/market_price_model.dart';
 import 'features/market_prices/price_repository.dart';
 
-// Riverpod Notifier Provider (Riverpod 3 style) to manage market prices
+// Riverpod Notifier Provider to manage market prices list state
 final marketPricesProvider = NotifierProvider<MarketPricesNotifier, List<MarketPrice>>(() {
   return MarketPricesNotifier();
 });
@@ -18,7 +17,7 @@ class MarketPricesNotifier extends Notifier<List<MarketPrice>> {
   }
 
   Future<void> loadPrices() async {
-    final prices = await DatabaseService.instance.marketPrices.where().anyId().findAll();
+    final prices = await DatabaseService.getCachedPrices();
     state = prices;
   }
 }
@@ -227,12 +226,14 @@ class DashboardScreen extends ConsumerWidget {
                                 child: const Icon(Icons.agriculture_rounded, color: Colors.teal),
                               ),
                               title: Text(
-                                price.itemName,
+                                '${price.commodityNameEn} (${price.commodityNameNp})',
                                 style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              subtitle: Text('Unit: ${price.unit}'),
+                              subtitle: Text(
+                                'Unit: ${price.unit} | Min: Rs. ${price.minimumPrice.toStringAsFixed(0)} | Max: Rs. ${price.maximumPrice.toStringAsFixed(0)}',
+                              ),
                               trailing: Text(
-                                'Rs. ${price.avgPrice.toStringAsFixed(1)}',
+                                'Rs. ${price.averagePrice.toStringAsFixed(1)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w900,
                                   color: Colors.green,

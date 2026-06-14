@@ -17,28 +17,33 @@ const MarketPriceSchema = CollectionSchema(
   name: r'MarketPrice',
   id: -2526803194536702617,
   properties: {
-    r'avgPrice': PropertySchema(
+    r'averagePrice': PropertySchema(
       id: 0,
-      name: r'avgPrice',
+      name: r'averagePrice',
       type: IsarType.double,
     ),
-    r'date': PropertySchema(id: 1, name: r'date', type: IsarType.dateTime),
-    r'itemName': PropertySchema(
-      id: 2,
-      name: r'itemName',
+    r'commodityNameEn': PropertySchema(
+      id: 1,
+      name: r'commodityNameEn',
       type: IsarType.string,
     ),
-    r'maxPrice': PropertySchema(
-      id: 3,
-      name: r'maxPrice',
-      type: IsarType.double,
+    r'commodityNameNp': PropertySchema(
+      id: 2,
+      name: r'commodityNameNp',
+      type: IsarType.string,
     ),
-    r'minPrice': PropertySchema(
+    r'date': PropertySchema(id: 3, name: r'date', type: IsarType.string),
+    r'maximumPrice': PropertySchema(
       id: 4,
-      name: r'minPrice',
+      name: r'maximumPrice',
       type: IsarType.double,
     ),
-    r'unit': PropertySchema(id: 5, name: r'unit', type: IsarType.string),
+    r'minimumPrice': PropertySchema(
+      id: 5,
+      name: r'minimumPrice',
+      type: IsarType.double,
+    ),
+    r'unit': PropertySchema(id: 6, name: r'unit', type: IsarType.string),
   },
 
   estimateSize: _marketPriceEstimateSize,
@@ -62,7 +67,9 @@ int _marketPriceEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.itemName.length * 3;
+  bytesCount += 3 + object.commodityNameEn.length * 3;
+  bytesCount += 3 + object.commodityNameNp.length * 3;
+  bytesCount += 3 + object.date.length * 3;
   bytesCount += 3 + object.unit.length * 3;
   return bytesCount;
 }
@@ -73,12 +80,13 @@ void _marketPriceSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.avgPrice);
-  writer.writeDateTime(offsets[1], object.date);
-  writer.writeString(offsets[2], object.itemName);
-  writer.writeDouble(offsets[3], object.maxPrice);
-  writer.writeDouble(offsets[4], object.minPrice);
-  writer.writeString(offsets[5], object.unit);
+  writer.writeDouble(offsets[0], object.averagePrice);
+  writer.writeString(offsets[1], object.commodityNameEn);
+  writer.writeString(offsets[2], object.commodityNameNp);
+  writer.writeString(offsets[3], object.date);
+  writer.writeDouble(offsets[4], object.maximumPrice);
+  writer.writeDouble(offsets[5], object.minimumPrice);
+  writer.writeString(offsets[6], object.unit);
 }
 
 MarketPrice _marketPriceDeserialize(
@@ -88,13 +96,14 @@ MarketPrice _marketPriceDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = MarketPrice();
-  object.avgPrice = reader.readDouble(offsets[0]);
-  object.date = reader.readDateTime(offsets[1]);
+  object.averagePrice = reader.readDouble(offsets[0]);
+  object.commodityNameEn = reader.readString(offsets[1]);
+  object.commodityNameNp = reader.readString(offsets[2]);
+  object.date = reader.readString(offsets[3]);
   object.id = id;
-  object.itemName = reader.readString(offsets[2]);
-  object.maxPrice = reader.readDouble(offsets[3]);
-  object.minPrice = reader.readDouble(offsets[4]);
-  object.unit = reader.readString(offsets[5]);
+  object.maximumPrice = reader.readDouble(offsets[4]);
+  object.minimumPrice = reader.readDouble(offsets[5]);
+  object.unit = reader.readString(offsets[6]);
   return object;
 }
 
@@ -108,14 +117,16 @@ P _marketPriceDeserializeProp<P>(
     case 0:
       return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 4:
       return (reader.readDouble(offset)) as P;
     case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -222,14 +233,12 @@ extension MarketPriceQueryWhere
 
 extension MarketPriceQueryFilter
     on QueryBuilder<MarketPrice, MarketPrice, QFilterCondition> {
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> avgPriceEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  averagePriceEqualTo(double value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(
-          property: r'avgPrice',
+          property: r'averagePrice',
           value: value,
 
           epsilon: epsilon,
@@ -239,7 +248,7 @@ extension MarketPriceQueryFilter
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  avgPriceGreaterThan(
+  averagePriceGreaterThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -248,7 +257,7 @@ extension MarketPriceQueryFilter
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
-          property: r'avgPrice',
+          property: r'averagePrice',
           value: value,
 
           epsilon: epsilon,
@@ -258,7 +267,7 @@ extension MarketPriceQueryFilter
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  avgPriceLessThan(
+  averagePriceLessThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -267,7 +276,7 @@ extension MarketPriceQueryFilter
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
-          property: r'avgPrice',
+          property: r'averagePrice',
           value: value,
 
           epsilon: epsilon,
@@ -276,7 +285,8 @@ extension MarketPriceQueryFilter
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> avgPriceBetween(
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  averagePriceBetween(
     double lower,
     double upper, {
     bool includeLower = true,
@@ -286,7 +296,7 @@ extension MarketPriceQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.between(
-          property: r'avgPrice',
+          property: r'averagePrice',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -298,19 +308,307 @@ extension MarketPriceQueryFilter
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateEqualTo(
-    DateTime value,
-  ) {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'date', value: value),
+        FilterCondition.equalTo(
+          property: r'commodityNameEn',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'commodityNameEn',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'commodityNameEn',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'commodityNameEn',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'commodityNameEn',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'commodityNameEn',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'commodityNameEn',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'commodityNameEn',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'commodityNameEn', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameEnIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'commodityNameEn', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'commodityNameNp',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'commodityNameNp',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'commodityNameNp',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'commodityNameNp',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'commodityNameNp',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'commodityNameNp',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'commodityNameNp',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'commodityNameNp',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'commodityNameNp', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  commodityNameNpIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'commodityNameNp', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'date',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateGreaterThan(
-    DateTime value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -318,14 +616,16 @@ extension MarketPriceQueryFilter
           include: include,
           property: r'date',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateLessThan(
-    DateTime value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -333,16 +633,18 @@ extension MarketPriceQueryFilter
           include: include,
           property: r'date',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateBetween(
-    DateTime lower,
-    DateTime upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -352,7 +654,85 @@ extension MarketPriceQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'date',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'date',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'date',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'date',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> dateIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'date', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  dateIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'date', value: ''),
       );
     });
   }
@@ -416,158 +796,12 @@ extension MarketPriceQueryFilter
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> itemNameEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  maximumPriceEqualTo(double value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(
-          property: r'itemName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  itemNameGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'itemName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  itemNameLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'itemName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> itemNameBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'itemName',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  itemNameStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'itemName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  itemNameEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'itemName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  itemNameContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'itemName',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> itemNameMatches(
-    String pattern, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'itemName',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  itemNameIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'itemName', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  itemNameIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'itemName', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> maxPriceEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'maxPrice',
+          property: r'maximumPrice',
           value: value,
 
           epsilon: epsilon,
@@ -577,7 +811,7 @@ extension MarketPriceQueryFilter
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  maxPriceGreaterThan(
+  maximumPriceGreaterThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -586,7 +820,7 @@ extension MarketPriceQueryFilter
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
-          property: r'maxPrice',
+          property: r'maximumPrice',
           value: value,
 
           epsilon: epsilon,
@@ -596,7 +830,7 @@ extension MarketPriceQueryFilter
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  maxPriceLessThan(
+  maximumPriceLessThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -605,7 +839,7 @@ extension MarketPriceQueryFilter
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
-          property: r'maxPrice',
+          property: r'maximumPrice',
           value: value,
 
           epsilon: epsilon,
@@ -614,7 +848,8 @@ extension MarketPriceQueryFilter
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> maxPriceBetween(
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  maximumPriceBetween(
     double lower,
     double upper, {
     bool includeLower = true,
@@ -624,7 +859,7 @@ extension MarketPriceQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.between(
-          property: r'maxPrice',
+          property: r'maximumPrice',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -636,14 +871,12 @@ extension MarketPriceQueryFilter
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> minPriceEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  minimumPriceEqualTo(double value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(
-          property: r'minPrice',
+          property: r'minimumPrice',
           value: value,
 
           epsilon: epsilon,
@@ -653,7 +886,7 @@ extension MarketPriceQueryFilter
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  minPriceGreaterThan(
+  minimumPriceGreaterThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -662,7 +895,7 @@ extension MarketPriceQueryFilter
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
-          property: r'minPrice',
+          property: r'minimumPrice',
           value: value,
 
           epsilon: epsilon,
@@ -672,7 +905,7 @@ extension MarketPriceQueryFilter
   }
 
   QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
-  minPriceLessThan(
+  minimumPriceLessThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -681,7 +914,7 @@ extension MarketPriceQueryFilter
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
-          property: r'minPrice',
+          property: r'minimumPrice',
           value: value,
 
           epsilon: epsilon,
@@ -690,7 +923,8 @@ extension MarketPriceQueryFilter
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition> minPriceBetween(
+  QueryBuilder<MarketPrice, MarketPrice, QAfterFilterCondition>
+  minimumPriceBetween(
     double lower,
     double upper, {
     bool includeLower = true,
@@ -700,7 +934,7 @@ extension MarketPriceQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.between(
-          property: r'minPrice',
+          property: r'minimumPrice',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -868,15 +1102,42 @@ extension MarketPriceQueryLinks
 
 extension MarketPriceQuerySortBy
     on QueryBuilder<MarketPrice, MarketPrice, QSortBy> {
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByAvgPrice() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByAveragePrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'avgPrice', Sort.asc);
+      return query.addSortBy(r'averagePrice', Sort.asc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByAvgPriceDesc() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  sortByAveragePriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'avgPrice', Sort.desc);
+      return query.addSortBy(r'averagePrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByCommodityNameEn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameEn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  sortByCommodityNameEnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameEn', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByCommodityNameNp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameNp', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  sortByCommodityNameNpDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameNp', Sort.desc);
     });
   }
 
@@ -892,39 +1153,29 @@ extension MarketPriceQuerySortBy
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByItemName() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByMaximumPrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'itemName', Sort.asc);
+      return query.addSortBy(r'maximumPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByItemNameDesc() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  sortByMaximumPriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'itemName', Sort.desc);
+      return query.addSortBy(r'maximumPrice', Sort.desc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByMaxPrice() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByMinimumPrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxPrice', Sort.asc);
+      return query.addSortBy(r'minimumPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByMaxPriceDesc() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  sortByMinimumPriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxPrice', Sort.desc);
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByMinPrice() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'minPrice', Sort.asc);
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> sortByMinPriceDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'minPrice', Sort.desc);
+      return query.addSortBy(r'minimumPrice', Sort.desc);
     });
   }
 
@@ -943,15 +1194,42 @@ extension MarketPriceQuerySortBy
 
 extension MarketPriceQuerySortThenBy
     on QueryBuilder<MarketPrice, MarketPrice, QSortThenBy> {
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByAvgPrice() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByAveragePrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'avgPrice', Sort.asc);
+      return query.addSortBy(r'averagePrice', Sort.asc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByAvgPriceDesc() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  thenByAveragePriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'avgPrice', Sort.desc);
+      return query.addSortBy(r'averagePrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByCommodityNameEn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameEn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  thenByCommodityNameEnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameEn', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByCommodityNameNp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameNp', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  thenByCommodityNameNpDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commodityNameNp', Sort.desc);
     });
   }
 
@@ -979,39 +1257,29 @@ extension MarketPriceQuerySortThenBy
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByItemName() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByMaximumPrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'itemName', Sort.asc);
+      return query.addSortBy(r'maximumPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByItemNameDesc() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  thenByMaximumPriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'itemName', Sort.desc);
+      return query.addSortBy(r'maximumPrice', Sort.desc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByMaxPrice() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByMinimumPrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxPrice', Sort.asc);
+      return query.addSortBy(r'minimumPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByMaxPriceDesc() {
+  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy>
+  thenByMinimumPriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxPrice', Sort.desc);
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByMinPrice() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'minPrice', Sort.asc);
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QAfterSortBy> thenByMinPriceDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'minPrice', Sort.desc);
+      return query.addSortBy(r'minimumPrice', Sort.desc);
     });
   }
 
@@ -1030,35 +1298,51 @@ extension MarketPriceQuerySortThenBy
 
 extension MarketPriceQueryWhereDistinct
     on QueryBuilder<MarketPrice, MarketPrice, QDistinct> {
-  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByAvgPrice() {
+  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByAveragePrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'avgPrice');
+      return query.addDistinctBy(r'averagePrice');
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByDate() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'date');
-    });
-  }
-
-  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByItemName({
+  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByCommodityNameEn({
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'itemName', caseSensitive: caseSensitive);
+      return query.addDistinctBy(
+        r'commodityNameEn',
+        caseSensitive: caseSensitive,
+      );
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByMaxPrice() {
+  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByCommodityNameNp({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'maxPrice');
+      return query.addDistinctBy(
+        r'commodityNameNp',
+        caseSensitive: caseSensitive,
+      );
     });
   }
 
-  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByMinPrice() {
+  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByDate({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'minPrice');
+      return query.addDistinctBy(r'date', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByMaximumPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'maximumPrice');
+    });
+  }
+
+  QueryBuilder<MarketPrice, MarketPrice, QDistinct> distinctByMinimumPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'minimumPrice');
     });
   }
 
@@ -1079,33 +1363,41 @@ extension MarketPriceQueryProperty
     });
   }
 
-  QueryBuilder<MarketPrice, double, QQueryOperations> avgPriceProperty() {
+  QueryBuilder<MarketPrice, double, QQueryOperations> averagePriceProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'avgPrice');
+      return query.addPropertyName(r'averagePrice');
     });
   }
 
-  QueryBuilder<MarketPrice, DateTime, QQueryOperations> dateProperty() {
+  QueryBuilder<MarketPrice, String, QQueryOperations>
+  commodityNameEnProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'commodityNameEn');
+    });
+  }
+
+  QueryBuilder<MarketPrice, String, QQueryOperations>
+  commodityNameNpProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'commodityNameNp');
+    });
+  }
+
+  QueryBuilder<MarketPrice, String, QQueryOperations> dateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'date');
     });
   }
 
-  QueryBuilder<MarketPrice, String, QQueryOperations> itemNameProperty() {
+  QueryBuilder<MarketPrice, double, QQueryOperations> maximumPriceProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'itemName');
+      return query.addPropertyName(r'maximumPrice');
     });
   }
 
-  QueryBuilder<MarketPrice, double, QQueryOperations> maxPriceProperty() {
+  QueryBuilder<MarketPrice, double, QQueryOperations> minimumPriceProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'maxPrice');
-    });
-  }
-
-  QueryBuilder<MarketPrice, double, QQueryOperations> minPriceProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'minPrice');
+      return query.addPropertyName(r'minimumPrice');
     });
   }
 
