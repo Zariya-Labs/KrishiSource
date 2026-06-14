@@ -46,6 +46,7 @@ app.*.map.json
 
 # Python virtual environment
 backend/.venv/
+backend/dataset/
 *.pyc
 __pycache__/
 
