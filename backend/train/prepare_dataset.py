@@ -215,7 +215,7 @@ def generate_synthetic_leaf(class_name, target_size=(224, 224)):
             
     return img
 
-def prepare_data(output_dir, source_dir=None, split_ratio=(0.7, 0.15, 0.15), quick_test=False, num_images_per_class=100):
+def prepare_data(output_dir, source_dir=None, split_ratio=(0.8, 0.2, 0.0), quick_test=False, num_images_per_class=100):
     """
     Processes, resizes, and organizes images into structured train, val, and test splits.
     """
@@ -327,7 +327,7 @@ if __name__ == '__main__':
     parser.add_argument('--output-dir', type=str, default='dataset', help='Destination folder for the prepared dataset.')
     parser.add_argument('--download-url', type=str, default=None, help='URL to download zip/tar file containing raw dataset.')
     parser.add_argument('--source-dir', type=str, default=None, help='Local folder path where raw images are already stored.')
-    parser.add_argument('--split', type=str, default='0.7,0.15,0.15', help='Dataset train, validation, test ratio (comma separated).')
+    parser.add_argument('--split', type=str, default='0.8,0.2,0.0', help='Dataset train, validation, test ratio (comma separated).')
     parser.add_argument('--quick-test', action='store_true', help='Immediately generate synthetic leaf images (skips downloads).')
     parser.add_argument('--images-per-class', type=int, default=100, help='Number of synthetic images to generate per class.')
     parser.add_argument('--download-default', action='store_true', help='Download the default PlantVillage repository from GitHub.')

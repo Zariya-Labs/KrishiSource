@@ -101,9 +101,18 @@ def build_model(num_classes, image_shape=(224, 224, 3)):
     # Construct the classification head
     inputs = tf.keras.Input(shape=image_shape)
     
+    # Data augmentation block
+    data_augmentation = tf.keras.Sequential([
+        tf.keras.layers.RandomFlip("horizontal_and_vertical"),
+        tf.keras.layers.RandomRotation(0.2),
+        tf.keras.layers.RandomBrightness(0.2),
+    ], name="data_augmentation")
+    
+    x = data_augmentation(inputs)
+    
     # Preprocess inputs - MobileNetV3 expects values in [-1, 1] or [0, 255] depending on config,
     # tf.keras.applications.mobilenet_v3.preprocess_input takes care of it correctly.
-    x = tf.keras.applications.mobilenet_v3.preprocess_input(inputs)
+    x = tf.keras.applications.mobilenet_v3.preprocess_input(x)
     
     # Forward pass through frozen base model
     x = base_model(x, training=False)
@@ -247,8 +256,8 @@ if __name__ == '__main__':
     
     # Root paths for Flutter asset pipeline
     project_root = Path(__file__).resolve().parents[2]
-    default_tflite = project_root / 'assets' / 'ml' / 'crop_disease_model.tflite'
-    default_labels = project_root / 'assets' / 'ml' / 'labels.txt'
+    default_tflite = project_root / 'assets' / 'model_multi.tflite'
+    default_labels = project_root / 'assets' / 'labels_multi.txt'
     
     parser.add_argument('--tflite-path', type=str, default=str(default_tflite), help='Destination path for .tflite model file.')
     parser.add_argument('--labels-path', type=str, default=str(default_labels), help='Destination path for labels.txt file.')

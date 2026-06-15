@@ -50,3 +50,8 @@ backend/dataset/
 *.pyc
 __pycache__/
 
+# Datasets and raw archives
+/dataset/
+/dataset_hierarchical/
+/temp_raw_data/
+
