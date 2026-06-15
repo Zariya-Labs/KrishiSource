@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 def verify():
-    model_path = Path('assets/model_multi.tflite')
+    model_path = Path('assets/model_nepal_v2.tflite')
     labels_path = Path('assets/labels.txt')
     
     print("--- Verification Report ---")
