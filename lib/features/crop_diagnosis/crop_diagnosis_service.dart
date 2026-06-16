@@ -34,7 +34,8 @@ class CropDiagnosisService {
       // 2. Load the TFLite interpreter
       // Employs a try-catch pattern to support robust fallback simulation
       // if NDK bindings or format verification fail during development or testing.
-      _interpreter = await Interpreter.fromAsset('assets/ml/crop_disease_model.tflite');
+      final options = InterpreterOptions()..addDelegate(GpuDelegateV2());
+      _interpreter = await Interpreter.fromAsset('assets/ml/crop_disease_model.tflite', options: options);
       _isModelLoaded = true;
     } catch (e) {
       _isModelLoaded = false;

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../crop_diagnosis_controller.dart';
-
+import '../feedback_service.dart';
 // Model to hold localized disease details and remedies
 class _DiseaseDetail {
   final String nepaliName;
@@ -253,14 +253,14 @@ class CropDiagnosisScreen extends ConsumerWidget {
         border: Border.all(color: Colors.teal.withAlpha(80), width: 1.5),
       ),
       padding: const EdgeInsets.all(12),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: Colors.tealAccent, size: 24),
-          SizedBox(width: 12),
+          Icon(Icons.info_outline_rounded, color: Colors.teal.shade800, size: 24),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               'तपाईंको आलु वा गोलभेडाको बोटको बिरामी भागको स्पष्ट फोटो खिचेर कुन रोग हो र त्यसको रोकथामका उपायहरू तुरुन्तै हेर्नुहोस्।',
-              style: TextStyle(fontSize: 14, color: Colors.white70, height: 1.4),
+              style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w700, height: 1.4),
             ),
           ),
         ],
@@ -409,9 +409,10 @@ class CropDiagnosisScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Text(
                   detail.nepaliName,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(context).colorScheme.onSurface,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -419,10 +420,11 @@ class CropDiagnosisScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     '(${detail.englishName})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
+                      fontWeight: FontWeight.bold,
                       fontStyle: FontStyle.italic,
-                      color: Colors.white70,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -435,7 +437,7 @@ class CropDiagnosisScreen extends ConsumerWidget {
                   ),
                   child: Text(
                     'पहिचान निश्चितता (Confidence): $pct%',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ),
               ],
@@ -486,7 +488,7 @@ class CropDiagnosisScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               remedy,
-                              style: const TextStyle(fontSize: 15, height: 1.4, color: Colors.white70),
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.4, color: Theme.of(context).colorScheme.onSurface),
                             ),
                           ),
                         ],
@@ -494,6 +496,16 @@ class CropDiagnosisScreen extends ConsumerWidget {
                     )),
               ],
             ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: () => _showFeedbackDialog(context, state),
+          icon: const Icon(Icons.feedback_rounded, color: Colors.orange),
+          label: const Text('तथ्याङ्क गलत छ? रिपोर्ट गर्नुहोस्', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Colors.orange, width: 1.5),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ],
@@ -740,6 +752,57 @@ class CropDiagnosisScreen extends ConsumerWidget {
           // Typically we would launch the dialer (e.g. url_launcher), but keeping it local as contact lookup
         },
       ),
+    );
+  }
+
+  void _showFeedbackDialog(BuildContext context, CropDiagnosisState state) {
+    final TextEditingController _controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('रिपोर्ट गर्नुहोस्', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('यदि यो नतिजा गलत जस्तो लाग्छ भने, कृपया सही रोगको नाम वा तपाईंको प्रतिक्रिया लेख्नुहोस्:'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  hintText: 'रोगको नाम वा प्रतिक्रिया...',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('रद्द गर्नुहोस्'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final label = _controller.text.trim();
+                if (label.isNotEmpty && state.imagePath != null && state.diseaseName != null) {
+                  FeedbackService.logFeedback(
+                    imagePath: state.imagePath!,
+                    predictedDisease: state.diseaseName!,
+                    confidence: state.confidence ?? 0.0,
+                    userLabel: label,
+                  );
+                }
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('तपाईंको प्रतिक्रियाको लागि धन्यवाद!')),
+                );
+              },
+              child: const Text('पठाउनुहोस्'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

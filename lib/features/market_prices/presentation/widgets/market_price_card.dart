@@ -45,9 +45,10 @@ class MarketPriceCard extends StatelessWidget {
                     children: [
                       Text(
                         price.commodityNameNp,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w900,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -55,6 +56,7 @@ class MarketPriceCard extends StatelessWidget {
                         price.commodityNameEn,
                         style: TextStyle(
                           fontSize: 14,
+                          fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -68,9 +70,9 @@ class MarketPriceCard extends StatelessWidget {
                     Text(
                       'रु ${price.averagePrice.toStringAsFixed(1)}',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -78,7 +80,7 @@ class MarketPriceCard extends StatelessWidget {
                       '/ ${price.unit}',
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -101,7 +103,11 @@ class MarketPriceCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'न्यूनतम: रु ${price.minimumPrice.toStringAsFixed(0)}',
-                      style: const TextStyle(fontSize: 13),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ],
                 ),
@@ -115,7 +121,11 @@ class MarketPriceCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'अधिकतम: रु ${price.maximumPrice.toStringAsFixed(0)}',
-                      style: const TextStyle(fontSize: 13),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ],
                 ),

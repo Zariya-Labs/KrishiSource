@@ -18,6 +18,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import time
+
+_cache = {
+    "data": None,
+    "last_fetched": 0
+}
+CACHE_TTL = 3600  # 1 hour
+
 @app.get("/api/v1/prices/latest", response_model=List[Dict[str, Any]])
 def get_latest_prices() -> List[Dict[str, Any]]:
     """
@@ -37,7 +45,17 @@ def get_latest_prices() -> List[Dict[str, Any]]:
       }
     ]
     """
-    return scrape_market_prices()
+    current_time = time.time()
+    
+    # Return cached data if it exists and is less than 1 hour old
+    if _cache["data"] is not None and (current_time - _cache["last_fetched"] < CACHE_TTL):
+        return _cache["data"]
+        
+    # Otherwise, scrape live data, update cache, and return
+    fresh_data = scrape_market_prices()
+    _cache["data"] = fresh_data
+    _cache["last_fetched"] = current_time
+    return fresh_data
 
 if __name__ == "__main__":
     import uvicorn

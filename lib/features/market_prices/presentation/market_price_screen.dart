@@ -15,17 +15,22 @@ class MarketPricesState {
     required this.prices,
     required this.isLoading,
     required this.isOffline,
+    this.errorMessage,
   });
+
+  final String? errorMessage;
 
   MarketPricesState copyWith({
     List<MarketPrice>? prices,
     bool? isLoading,
     bool? isOffline,
+    String? errorMessage,
   }) {
     return MarketPricesState(
       prices: prices ?? this.prices,
       isLoading: isLoading ?? this.isLoading,
       isOffline: isOffline ?? this.isOffline,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }
@@ -55,9 +60,10 @@ class MarketPricesNotifier extends Notifier<MarketPricesState> {
       await DatabaseService.savePrices(latest);
 
       state = MarketPricesState(prices: latest, isLoading: false, isOffline: false);
-    } catch (e) {
+    } catch (e, st) {
       // 4. Fall back to cache and display the offline warning indicator
-      state = MarketPricesState(prices: cached, isLoading: false, isOffline: true);
+      print('APP_EXCEPTION: $e\n$st');
+      state = MarketPricesState(prices: cached, isLoading: false, isOffline: true, errorMessage: e.toString());
     }
   }
 
@@ -121,6 +127,13 @@ class MarketPriceScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    if (state.errorMessage != null)
+                      Expanded(
+                        child: Text(
+                          state.errorMessage!,
+                          style: TextStyle(color: Colors.white, fontSize: 10),
+                        ),
+                      ),
                     IconButton(
                       icon: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
                       onPressed: () {
@@ -152,6 +165,16 @@ class MarketPriceScreen extends ConsumerWidget {
                               "कुनै विवरण उपलब्ध छैन। कृपया इन्टरनेट अन गरी तान्नुहोस्।",
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 15, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 24),
+                            Center(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  ref.read(marketPricesProvider.notifier).loadPrices();
+                                },
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('पुनः प्रयास गर्नुहोस्'),
+                              ),
                             ),
                           ],
                         )
