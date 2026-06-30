@@ -91,6 +91,15 @@ class MarketPriceScreen extends ConsumerWidget {
           style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              _showSettingsDialog(context, ref);
+            },
+            tooltip: 'API Settings',
+          ),
+        ],
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -131,7 +140,7 @@ class MarketPriceScreen extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           state.errorMessage!,
-                          style: TextStyle(color: Colors.white, fontSize: 10),
+                          style: const TextStyle(color: Colors.white, fontSize: 10),
                         ),
                       ),
                     IconButton(
@@ -176,6 +185,16 @@ class MarketPriceScreen extends ConsumerWidget {
                                 label: const Text('पुनः प्रयास गर्नुहोस्'),
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            Center(
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  _showSettingsDialog(context, ref);
+                                },
+                                icon: const Icon(Icons.settings),
+                                label: const Text('API Base URL मिलाउनुहोस्'),
+                              ),
+                            ),
                           ],
                         )
                       : ListView.builder(
@@ -189,6 +208,139 @@ class MarketPriceScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showSettingsDialog(BuildContext context, WidgetRef ref) async {
+    final apiService = ApiService();
+    final currentUrl = await apiService.getBaseUrl();
+    final controller = TextEditingController(text: currentUrl);
+
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: const [
+              Icon(Icons.settings, color: Colors.teal),
+              SizedBox(width: 10),
+              Text('API Configuration'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Configure Backend Base URL:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'e.g., http://192.168.1.100:8000',
+                    labelText: 'Base URL',
+                  ),
+                  keyboardType: TextInputType.url,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.teal.withAlpha(20),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.teal.withAlpha(60)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        '💡 Setup Guide:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.tealAccent,
+                          fontSize: 13,
+                        ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        '• Physical Phone: Find your computer\'s local IP address (e.g. 192.168.1.50). Make sure both phone and computer are on the same Wi-Fi. Set base URL to: http://192.168.1.50:8000',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        '• Deployed Backend: If you hosted the backend online (e.g. Render, Fly.io), use that URL: https://your-backend.onrender.com',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        '• Emulator: Use default http://10.0.2.2:8000',
+                        style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await apiService.setBaseUrl(ApiService.defaultBaseUrl);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Reset to default URL')),
+                  );
+                  ref.read(marketPricesProvider.notifier).loadPrices();
+                }
+              },
+              child: const Text('Reset Default', style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final enteredUrl = controller.text.trim();
+                if (enteredUrl.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('URL cannot be empty')),
+                  );
+                  return;
+                }
+                if (!enteredUrl.startsWith('http://') && !enteredUrl.startsWith('https://')) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('URL must start with http:// or https://')),
+                  );
+                  return;
+                }
+                await apiService.setBaseUrl(enteredUrl);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Saved: $enteredUrl')),
+                  );
+                  ref.read(marketPricesProvider.notifier).loadPrices();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

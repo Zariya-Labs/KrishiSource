@@ -17,6 +17,7 @@ dependencies:
   isar_community: ^3.3.1
   isar_community_flutter_libs: ^3.3.1
   path_provider: ^2.1.5
+  shared_preferences: ^2.5.5
   tflite_flutter: ^0.12.1
 
 dev_dependencies:
