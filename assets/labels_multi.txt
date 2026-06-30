@@ -1,8 +1,0 @@
-maize_healthy
-maize_leaf_blight_rust
-potato_healthy
-potato_late_blight
-rice_bacterial_blight_blast
-rice_healthy
-tomato_healthy
-tomato_late_blight
