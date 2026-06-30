@@ -29,8 +29,8 @@ class ApiService {
   Future<List<MarketPrice>> fetchLatestPrices() async {
     final baseUrl = await getBaseUrl();
     final url = Uri.parse('$baseUrl/api/v1/prices/latest');
-    // Increase timeout to 15 seconds because the Python backend scrapes live data on every request, which can sometimes be slow.
-    final response = await http.get(url).timeout(const Duration(seconds: 15));
+    // Increase timeout to 45 seconds to accommodate free cloud hosting cold starts (like Render spinning up from a sleeping state).
+    final response = await http.get(url).timeout(const Duration(seconds: 45));
 
     if (response.statusCode == 200) {
       final String utf8Body = utf8.decode(response.bodyBytes);
