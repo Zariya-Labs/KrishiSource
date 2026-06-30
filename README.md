@@ -1,76 +1,104 @@
 # 🌱 KrishiSource
 
-**An Open-Source, Offline-First Agricultural Platform for Nepali Smallholder Farmers.**
+**An Open-Source, Offline-First Live Agricultural Price Feed App for Nepali Farmers.**
 
 > **Built and maintained by [Zariya Labs](https://github.com/Zariya-Labs)**
 
 ---
 
 ## 📌 The Problem
-Agriculture employs over 66% of Nepal's workforce, yet smallholder farmers consistently face critical bottlenecks:
+Agriculture employs over 66% of Nepal's workforce, yet smallholder farmers consistently face critical bottlenecks when looking for current wholesale market rates:
 1. **Lack of reliable internet access** in rural areas to check daily market prices.
-2. **Crop diseases** going undiagnosed due to a lack of immediate, on-the-ground agricultural expertise.
-3. **Fragmented data** from major hubs like the Kalimati Fruits and Vegetable Market.
+2. **Fragmented and slow data ingestion** from major hubs like the Kalimati Fruits and Vegetable Market.
+3. **Connectivity limits** during local development, preventing developer testing on physical mobile devices.
 
 ## 🚀 The Solution: KrishiSource
-KrishiSource is an open-source Flutter mobile application and centralized backend architecture designed to solve these exact problems. It is built to be fast, strictly offline-first, and natively localized for the Nepali language.
+KrishiSource is an open-source Flutter mobile application and centralized backend architecture designed to solve these exact problems. It is built to be fast, strictly offline-first, natively localized for the Nepali language, and dynamically configurable.
 
-### Core MVP Features
-* **📉 Offline Market Caching:** Automatically scrapes, syncs, and locally caches daily wholesale prices from the Kalimati Market Development Board using a highly optimized on-device NoSQL database.
-* **📸 Edge AI Disease Diagnosis:** Integrates a localized TensorFlow Lite (TFLite) computer vision model directly into the app bundle. Farmers can scan crop leaves to diagnose diseases without needing an active internet connection.
-* **🇳🇵 Native Localization:** Built from the ground up with Nepali UI/UX, prioritizing ease of use for rural demographics.
+### Core Features
+* **📉 Offline Market Caching:** Automatically scrapes, syncs, and locally caches daily wholesale prices from the Kalimati Market Development Board using a highly optimized on-device Isar NoSQL database.
+* **⚙️ Dynamic API Configuration:** Configurable API Base URL settings inside the app, letting developers and users point the app to a local PC's IP address (for physical device testing over Wi-Fi) or any custom hosted backend server.
+* **🇳🇵 Native Localization:** Built from the ground up with a Nepali UI/UX, prioritizing ease of use for rural demographics.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-This project is built using a clean, feature-first architecture to ensure maximum scalability and ease of open-source contribution.
-
 **Mobile Client (Flutter)**
 * **Framework:** Flutter (Dart)
-* **State Management:** Riverpod / BLoC
+* **State Management:** Riverpod
 * **Local Storage:** Isar (for ultra-fast, offline-first NoSQL caching)
-* **Edge AI:** TensorFlow Lite (`tflite_flutter`)
+* **Configuration:** Shared Preferences (for dynamic API endpoints configuration)
 
-**Backend & Data Aggregation**
-* **API Server:** Node.js (TypeScript) / Python (FastAPI)
-* **Data Sources:** Web scrapers targeting official Kalimati Market APIs and Open Government Data portals.
+**Backend Service (FastAPI)**
+* **Language:** Python
+* **Framework:** FastAPI / Uvicorn
+* **Scraper:** BeautifulSoup4 (session-based scraper targeting the official Kalimati Market board)
 
 ---
 
 ## 📁 Repository Structure
 
-We follow a strict feature-first architecture. When contributing, please ensure your code aligns with this structure:
+We follow a clean, modular feature-first architecture:
 
 ```text
-lib/
-│
-├── core/                  # Shared utilities, routing, and themes
-│   ├── database/          # Isar/Hive initialization & local repositories
-│   ├── network/           # API client and interceptors
-│   └── constants/         # App constants & localization strings
-│
-└── features/              # Modular, isolated feature sets
-    ├── market_prices/     # Kalimati price listing & offline caching logic
-    ├── crop_diagnosis/    # TFLite camera implementation & ML runner
-    └── dashboard/         # Main user interface
+├── android/               # Android native configuration
+├── backend/               # Python FastAPI backend server
+│   ├── main.py            # API entry point & caching logic
+│   ├── scraper.py         # Kalimati scraper module
+│   └── requirements.txt   # Python dependencies
+├── lib/
+│   ├── core/              # Shared utilities, database, and network setup
+│   │   ├── database/      # Isar database initialization & caching helpers
+│   │   └── network/       # Configurable API client
+│   └── features/          # Modular feature sets
+│       └── market_prices/ # Kalimati price listing & offline caching UI
+└── test/                  # Unit and integration tests
+```
 
-🤝 How to Contribute
-We welcome contributions from developers, data scientists, and UI/UX designers! Whether you are optimizing the Flutter architecture, training a better TFLite model for Nepali crops, or writing backend scrapers, your help is valued.
+---
 
-Fork the repository.
+## 🚀 Getting Started
 
-Clone your fork: git clone https://github.com/your-username/KrishiSource-app.git
+### 1. Run the Python Backend
+Navigate to the `backend` directory and set up a virtual environment:
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
 
-Create a new branch: git checkout -b feature/your-feature-name
+# Install required packages
+pip install fastapi uvicorn requests beautifulsoup4
 
-Commit your changes: git commit -m "feat: added new offline sync logic"
+# Start the FastAPI server
+python main.py
+```
+Verify the server is running by visiting: `http://localhost:8000/api/v1/prices/latest`
 
-Push to the branch: git push origin feature/your-feature-name
+### 2. Configure the Flutter App on a Physical Device
+1. Make sure your computer and phone are connected to the **same Wi-Fi network**.
+2. Find your computer's local IP address (e.g., run `ip route get 1.1.1.1` on Linux, `ipconfig` on Windows, or `ifconfig` on macOS).
+3. Open the app on your phone, tap the **Settings (gear) icon** in the top right, and set the **Base URL** to:
+   ```text
+   http://<YOUR_COMPUTER_IP>:8000
+   ```
+4. If you run into a `No route to host` error, check your computer's firewall and ensure port `8000` is allowed (e.g., run `sudo firewall-cmd --add-port=8000/tcp --permanent && sudo firewall-cmd --reload` on Fedora).
 
-Submit a Pull Request to the main branch of this repository.
+---
 
-Please ensure you run flutter format . and flutter analyze before submitting any PRs.
+## 🤝 How to Contribute
+We welcome contributions from developers, data scientists, and UI/UX designers! 
 
-📜 License
+1. Fork the repository.
+2. Clone your fork: `git clone https://github.com/your-username/KrishiSource.git`
+3. Create a new branch: `git checkout -b feature/your-feature-name`
+4. Commit your changes: `git commit -m "feat: added new offline sync logic"`
+5. Push to the branch: `git push origin feature/your-feature-name`
+6. Submit a Pull Request to the `main` branch.
+
+Please ensure you run `flutter format .` and `flutter analyze` before submitting any PRs.
+
+---
+
+## 📜 License
 This project is licensed under the MIT License - see the LICENSE file for details. Open data, open source, open agriculture.
